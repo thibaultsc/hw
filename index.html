@@ -90,7 +90,7 @@
                     <path d="M18 6L6 18" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M6 6L18 18" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <h2 id="quizTitle" class="text-[#1c170d] text-lg font-bold">Math Quiz</h2> {/* Title can be updated by JS */}
+                <h2 id="quizTitle" class="text-[#1c170d] text-lg font-bold">Math Quiz</h2> <!-- Title can be updated by JS -->
                 <div class="w-6"></div> <!-- Spacer -->
             </div>
 
@@ -103,7 +103,7 @@
             </div>
 
             <!-- Timer Display -->
-            <div id="timer" class="flex gap-4 py-6 px-4"> {/* Keeping ID 'timer' for JS compatibility, though structure changed */}
+            <div id="timer" class="flex gap-4 py-6 px-4"> <!-- Keeping ID 'timer' for JS compatibility, though structure changed -->
                 <div class="flex flex-col items-center grow">
                     <div id="timerMinutes" class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-[#f3f0e7] text-[#1c170d] text-2xl font-bold w-full">00</div>
                     <div class="text-xs text-[#1c170d] pt-1">Minutes</div>
@@ -122,10 +122,10 @@
             <!-- Answer Buttons -->
             <div class="flex justify-center py-3">
                 <div id="answers" class="flex flex-1 gap-3 max-w-[480px] flex-col items-stretch px-4">
-                    {/* Answer buttons will be dynamically added here by JS */}
-                    {/* Example of how a button should look (JS will generate these):
+                    <!-- Answer buttons will be dynamically added here by JS -->
+                    <!-- Example of how a button should look (JS will generate these):
                     <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#f3f0e7] text-[#1c170d] text-sm font-bold leading-normal tracking-[0.015em] w-full">Answer A</button>
-                    */}
+                    -->
                 </div>
             </div>
             
@@ -135,7 +135,7 @@
 
             <!-- Bottom Navigation Bar -->
             <div class="flex gap-2 border-t border-[#f3f0e7] bg-[#fcfbf8] px-4 pb-3 pt-2 sticky bottom-0">
-                <a href="#" class="flex flex-1 flex-col items-center justify-center gap-1 rounded-md p-2 text-[#9b844b]"> {/* Active state color */}
+                <a href="#" class="flex flex-1 flex-col items-center justify-center gap-1 rounded-md p-2 text-[#9b844b]"> <!-- Active state color -->
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="#9b844b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 22V12H15V22" stroke="#9b844b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     <span class="text-xs font-medium leading-none">Home</span>
                 </a>
@@ -148,7 +148,7 @@
                     <span class="text-xs font-medium leading-none">Profile</span>
                 </a>
             </div>
-            <div class="h-1 bg-[#fcfbf8]"></div> {/* Small div for bottom spacing, was h-5, adjusted for aesthetics with sticky footer */}
+            <div class="h-1 bg-[#fcfbf8]"></div> <!-- Small div for bottom spacing, was h-5, adjusted for aesthetics with sticky footer -->
         </div>
 
 
@@ -170,7 +170,7 @@
                 <div class="text-left">
                     <h3 class="text-xl font-semibold text-[#1c170d] mb-2">Summary:</h3>
                     <ul id="summary" class="max-h-60 overflow-y-auto">
-                        {/* Summary items will be added here by JS */}
+                        <!-- Summary items will be added here by JS -->
                     </ul>
                 </div>
                 <button id="restartButton" class="quiz-button">Practice Again</button>

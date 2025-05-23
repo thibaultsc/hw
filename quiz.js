@@ -30,15 +30,51 @@ export let gameMode = ''; // 'multiplication' or 'addition'
 const MULT_TIME_LIMIT = 20; // seconds
 const ADD_TIME_LIMIT = 15; // seconds
 
-// Function to calculate points based on time taken
-function calculatePoints(timeTaken, correctAnswer, isMultiplication) {
-    const timeLimit = isMultiplication ? MULT_TIME_LIMIT : ADD_TIME_LIMIT;
-    if (timeTaken === -1) return 0; // Timeout
+// Function to calculate points based on time taken, correctness, and game mode
+function calculatePoints(timeTaken, isCorrect, gameMode) {
+    if (!isCorrect) {
+        return 0;
+    }
 
-    const maxPoints = 100;
-    const timePenalty = Math.max(0, timeTaken - (timeLimit / 2)); // Penalty for time over half the limit
-    const points = Math.max(10, maxPoints - timePenalty * (maxPoints / (timeLimit / 2))); // Ensure minimum 10 points
-    return Math.round(points);
+    const basePoints = 30; // As per prompt's refined logic
+    const maxBonus = 70;   // As per prompt's refined logic
+    let timeLimit;
+
+    if (gameMode === 'multiplication') {
+        timeLimit = MULT_TIME_LIMIT; // 20 seconds
+    } else if (gameMode === 'addition') {
+        timeLimit = ADD_TIME_LIMIT;  // 15 seconds
+    } else {
+        console.error("Invalid game mode for point calculation:", gameMode);
+        return basePoints; // Should not happen, but return base points if it does
+    }
+
+    // Validate timeLimit (should always be positive based on constants)
+    if (typeof timeLimit !== 'number' || !isFinite(timeLimit) || timeLimit <= 0) {
+        console.error("Invalid timeLimit in calculatePoints:", timeLimit);
+        return basePoints; // Cannot calculate bonus without a valid timeLimit
+    }
+
+    // Validate timeTaken
+    let validTimeTaken = timeTaken;
+    if (typeof timeTaken !== 'number' || !isFinite(timeTaken)) {
+        console.warn("Invalid timeTaken in calculatePoints:", timeTaken, "- treating as timeLimit.");
+        validTimeTaken = timeLimit; // Treat invalid timeTaken as if time ran out (0 bonus)
+    }
+    
+    // Ensure timeTaken is not negative (could happen with clock issues, though unlikely here)
+    validTimeTaken = Math.max(0, validTimeTaken);
+
+    let bonusPoints = 0;
+    if (validTimeTaken < timeLimit) {
+        bonusPoints = maxBonus * (timeLimit - validTimeTaken) / timeLimit;
+    }
+    // If validTimeTaken >= timeLimit, bonusPoints remains 0.
+
+    const totalPoints = basePoints + Math.round(bonusPoints);
+    
+    // Final check to ensure a finite number is returned.
+    return Number.isFinite(totalPoints) ? totalPoints : basePoints;
 }
 
 // Function to start the quiz
@@ -80,16 +116,27 @@ export function checkAnswer(selectedAnswer, timeTaken) {
     // isCorrect determination
     const isCorrect = selectedAnswer === correctAnswer && selectedAnswer !== null;
 
-    // Calculate points using the passed timeTaken and module-scoped gameMode
-    const points = isCorrect ? calculatePoints(timeTaken, correctAnswer, gameMode === 'multiplication') : 0;
+    // Calculate points using the new calculatePoints function
+    const points = calculatePoints(timeTaken, isCorrect, gameMode);
 
     totalScore += points;
+
+    // Ensure timeTaken stored in results is a valid number for later display
+    let storedTimeTaken = timeTaken;
+    if (typeof timeTaken !== 'number' || !isFinite(timeTaken)) {
+        // If timeTaken from ui.js was invalid, store the relevant timeLimit.
+        // This helps ui.js format "N/As" if something went very wrong upstream.
+        storedTimeTaken = (gameMode === 'multiplication') ? MULT_TIME_LIMIT : ADD_TIME_LIMIT;
+        console.warn("Storing default timeLimit for results due to invalid timeTaken input to checkAnswer:", timeTaken);
+    }
+
+
     questionResults.push({
         questionText: currentQuestion.text,
-        selected: selectedAnswer, // Will be null for timeout
+        selected: selectedAnswer,
         correctAnswer: correctAnswer,
         isCorrect: isCorrect,
-        timeTaken: timeTaken, // Passed from ui.js
+        timeTaken: storedTimeTaken, // Store the validated or default timeTaken
         points: points
     });
 
