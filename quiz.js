@@ -26,55 +26,48 @@ export let questionResults = [];
 // startTime is no longer managed by quiz.js; ui.js handles its own questionStartTime
 export let gameMode = ''; // 'multiplication' or 'addition'
 
-// Time limits for scoring (can be adjusted)
-const MULT_TIME_LIMIT = 20; // seconds
-const ADD_TIME_LIMIT = 15; // seconds
+// New constants for degressive points logic
+const MAX_POINTS = 100;
+const MIN_POINTS = 30;
+const MULT_THRESHOLD_SECONDS = 10; // Time to reach MIN_POINTS for multiplication
+const ADD_THRESHOLD_SECONDS = 20;  // Time to reach MIN_POINTS for addition
 
-// Function to calculate points based on time taken, correctness, and game mode
+// Function to calculate points using the new degressive logic
 function calculatePoints(timeTaken, isCorrect, gameMode) {
     if (!isCorrect) {
         return 0;
     }
 
-    const basePoints = 30; // As per prompt's refined logic
-    const maxBonus = 70;   // As per prompt's refined logic
-    let timeLimit;
-
-    if (gameMode === 'multiplication') {
-        timeLimit = MULT_TIME_LIMIT; // 20 seconds
-    } else if (gameMode === 'addition') {
-        timeLimit = ADD_TIME_LIMIT;  // 15 seconds
-    } else {
-        console.error("Invalid game mode for point calculation:", gameMode);
-        return basePoints; // Should not happen, but return base points if it does
-    }
-
-    // Validate timeLimit (should always be positive based on constants)
-    if (typeof timeLimit !== 'number' || !isFinite(timeLimit) || timeLimit <= 0) {
-        console.error("Invalid timeLimit in calculatePoints:", timeLimit);
-        return basePoints; // Cannot calculate bonus without a valid timeLimit
-    }
-
-    // Validate timeTaken
     let validTimeTaken = timeTaken;
-    if (typeof timeTaken !== 'number' || !isFinite(timeTaken)) {
-        console.warn("Invalid timeTaken in calculatePoints:", timeTaken, "- treating as timeLimit.");
-        validTimeTaken = timeLimit; // Treat invalid timeTaken as if time ran out (0 bonus)
+    if (typeof timeTaken !== 'number' || !isFinite(timeTaken) || timeTaken < 0) {
+        validTimeTaken = 0; // Treat invalid or negative time as 0 for calculation
     }
-    
-    // Ensure timeTaken is not negative (could happen with clock issues, though unlikely here)
-    validTimeTaken = Math.max(0, validTimeTaken);
 
-    let bonusPoints = 0;
-    if (validTimeTaken < timeLimit) {
-        bonusPoints = maxBonus * (timeLimit - validTimeTaken) / timeLimit;
+    let thresholdSeconds;
+    if (gameMode === 'multiplication') {
+        thresholdSeconds = MULT_THRESHOLD_SECONDS;
+    } else if (gameMode === 'addition') {
+        thresholdSeconds = ADD_THRESHOLD_SECONDS;
+    } else {
+        console.error("Invalid game mode in calculatePoints:", gameMode);
+        return MIN_POINTS; // Default to MIN_POINTS if mode is somehow wrong (and answer is correct)
     }
-    // If validTimeTaken >= timeLimit, bonusPoints remains 0.
 
-    const totalPoints = basePoints + Math.round(bonusPoints);
-    
-    // Final check to ensure a finite number is returned.
-    return Number.isFinite(totalPoints) ? totalPoints : basePoints;
+    // Ensure thresholdSeconds is valid (should be based on constants)
+    if (typeof thresholdSeconds !== 'number' || thresholdSeconds <= 0) {
+        console.error("Invalid thresholdSeconds in calculatePoints:", thresholdSeconds);
+        return MIN_POINTS; // Should not happen if constants are defined correctly
+    }
+
+    if (validTimeTaken >= thresholdSeconds) {
+        return MIN_POINTS;
+    } else {
+        // Linear decrease from MAX_POINTS to MIN_POINTS over thresholdSeconds
+        const pointsRange = MAX_POINTS - MIN_POINTS;
+        const pointsLostPerSecond = pointsRange / thresholdSeconds;
+        const calculatedPoints = MAX_POINTS - (validTimeTaken * pointsLostPerSecond);
+        return Math.round(calculatedPoints);
+    }
 }
 
 // Function to start the quiz
@@ -92,12 +85,12 @@ export function startQuiz(mode) {
         if (setQuizTitle) setQuizTitle('Addition Quiz');
     }
 
-    // Add timeLimit to each question
-    const timeLimit = gameMode === 'multiplication' ? MULT_TIME_LIMIT : ADD_TIME_LIMIT;
-    questions = questions.map(q => ({ ...q, timeLimit: timeLimit }));
+    // The timeLimit property on question objects was for the countdown timer, which is removed.
+    // questions = questions.map(q => ({ ...q, timeLimit: timeLimit })); // This line is removed.
+    // MULT_TIME_LIMIT and ADD_TIME_LIMIT are still used in calculatePoints.
 
     if (questions.length > 0) {
-        // ui.js's displayQuestion will use questions[currentQuestionIndex].timeLimit
+        // ui.js's displayQuestion no longer needs questionData.timeLimit for a countdown.
         displayQuestion(questions[currentQuestionIndex], gameMode);
         showScreen('quiz');
     } else {
@@ -149,10 +142,11 @@ export function moveToNextQuestion() {
     currentQuestionIndex++;
     if (currentQuestionIndex < NUMBER_OF_QUESTIONS) {
         const questionData = questions[currentQuestionIndex];
-        // Ensure questionData has timeLimit (should have been set in startQuiz)
-        if (questionData.timeLimit === undefined) {
-             questionData.timeLimit = gameMode === 'multiplication' ? MULT_TIME_LIMIT : ADD_TIME_LIMIT;
-        }
+        // The timeLimit property on questionData was for the countdown timer.
+        // It's no longer added in startQuiz, so no need to check/add it here.
+        // if (questionData.timeLimit === undefined) {
+        //      questionData.timeLimit = gameMode === 'multiplication' ? MULT_TIME_LIMIT : ADD_TIME_LIMIT;
+        // }
         displayQuestion(questionData, gameMode);
         showScreen('quiz');
     } else {
@@ -170,6 +164,6 @@ function endQuiz() {
 
 // Removed setStartTime function as ui.js now manages its own questionStartTime
 
-// MULT_TIME_LIMIT and ADD_TIME_LIMIT are constants, already exported if needed by other modules (not currently)
-// No change needed to their export unless ui.js needs them, which it doesn't with current plan.
-export { MULT_TIME_LIMIT, ADD_TIME_LIMIT };
+// Removed export of old MULT_TIME_LIMIT and ADD_TIME_LIMIT as they are no longer used.
+// export { MULT_TIME_LIMIT, ADD_TIME_LIMIT }; 
+// The new threshold constants are not exported as they are only used internally by calculatePoints.

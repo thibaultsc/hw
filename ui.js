@@ -17,11 +17,10 @@ export const restartButton = document.getElementById('restartButton');
 export const nextQuestionButton = document.getElementById('nextQuestionButton');
 
 // Quiz Screen Elements
-const quizTitle = document.getElementById('quizTitle'); // New
+const quizTitle = document.getElementById('quizTitle');
 const questionCounter = document.getElementById('questionCounter');
-const progressBar = document.getElementById('progressBar'); // New
-const timerMinutes = document.getElementById('timerMinutes'); // New
-const timerSeconds = document.getElementById('timerSeconds'); // New
+const progressBar = document.getElementById('progressBar');
+// Removed timerMinutes and timerSeconds as the timer UI is removed
 const questionElement = document.getElementById('question');
 const answersElement = document.getElementById('answers');
 
@@ -34,8 +33,7 @@ const pointsDisplayElement = document.getElementById('pointsDisplay');
 const totalScoreElement = document.getElementById('totalScore');
 const summaryElement = document.getElementById('summary');
 
-// Local timer interval variable and question start time
-let timerInterval;
+// Local question start time (timerInterval removed)
 let questionStartTime; // To calculate timeTaken
 
 // Function to show a specific screen
@@ -66,7 +64,7 @@ export function setQuizTitle(title) {
 
 // Function to display a question
 export function displayQuestion(questionData, currentMode) {
-    stopTimer(); // Stop any existing timer
+    // stopTimer(); // Removed: stopTimer function is deleted
 
     if (questionCounter) questionCounter.textContent = `Question ${currentQuestionIndex + 1}/${NUMBER_OF_QUESTIONS}`;
     if (progressBar) progressBar.style.width = `${((currentQuestionIndex + 1) / NUMBER_OF_QUESTIONS) * 100}%`;
@@ -101,61 +99,24 @@ export function displayQuestion(questionData, currentMode) {
         button.textContent = option;
         button.className = 'flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#f3f0e7] text-[#1c170d] text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-[#e8e1cf]';
         button.onclick = () => {
-            stopTimer();
+            // stopTimer(); // Removed: stopTimer function is deleted
             const timeTaken = (Date.now() - questionStartTime) / 1000;
-            checkAnswer(option, gameMode, timeTaken); // gameMode is imported from quiz.js
+            // Corrected call to checkAnswer: gameMode is not passed as quiz.js uses its module-scoped gameMode.
+            checkAnswer(option, timeTaken); 
         };
         if (answersElement) answersElement.appendChild(button);
     });
 
-    // questionData.timeLimit should be set by quiz.js
-    if (questionData.timeLimit !== undefined) {
-        startTimer(questionData.timeLimit);
-    } else {
-        console.error("timeLimit not provided to displayQuestion");
-        // Fallback or error handling if timeLimit is missing
-        startTimer(10); // Default fallback, though quiz.js should always provide it
-    }
-}
-
-// Function to start the timer for a question
-export function startTimer(duration) { // duration is the timeLimit for the question
+    // Set questionStartTime when the question is displayed
     questionStartTime = Date.now();
-    let timeLeft = duration;
-    updateTimerDisplay(timeLeft); // Initial display
-
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay(timeLeft);
-        if (timeLeft < 0) {
-            stopTimer();
-            const timeTakenOnTimeout = duration; // For timeouts, timeTaken is the full duration
-            checkAnswer(null, gameMode, timeTakenOnTimeout); // gameMode is imported
-        }
-    }, 1000);
+    // Call to startTimer(questionData.timeLimit) removed
 }
 
-// Function to update the timer display
-export function updateTimerDisplay(timeLeft) {
-    const minutes = Math.floor(Math.max(0, timeLeft) / 60); // Ensure non-negative
-    const seconds = Math.max(0, timeLeft) % 60; // Ensure non-negative
-
-    if (timerMinutes) timerMinutes.textContent = String(minutes).padStart(2, '0');
-    if (timerSeconds) timerSeconds.textContent = String(seconds).padStart(2, '0');
-}
-
-// Function to stop the timer
-export function stopTimer() {
-    clearInterval(timerInterval);
-}
+// Removed startTimer, stopTimer, and updateTimerDisplay functions
 
 // Function to display feedback after an answer
 export function displayFeedback(isCorrect, correctAnswer, points) {
-    stopTimer();
+    // stopTimer(); // Removed: stopTimer function is deleted
     if (feedbackMessageElement) feedbackMessageElement.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
     if (correctAnswerDisplayElement) correctAnswerDisplayElement.textContent = `The correct answer was: ${correctAnswer}`;
     if (pointsDisplayElement) pointsDisplayElement.textContent = `Points: ${points}`;
@@ -164,7 +125,7 @@ export function displayFeedback(isCorrect, correctAnswer, points) {
 
 // Function to display the end screen with results
 export function endQuizUI(finalScore, results) {
-    stopTimer();
+    // stopTimer(); // Removed: stopTimer function is deleted
     if (totalScoreElement) totalScoreElement.textContent = finalScore;
     if (summaryElement) summaryElement.innerHTML = ''; // Clear previous summary
 
@@ -216,7 +177,7 @@ if (restartButton) restartButton.addEventListener('click', () => {
 const closeQuizButton = document.querySelector('#quizScreen svg');
 if (closeQuizButton) {
     closeQuizButton.addEventListener('click', () => {
-        stopTimer();
+        // stopTimer(); // Removed: stopTimer function is deleted
         showScreen('start');
         // Optionally, reset quiz state more thoroughly here if needed
     });
@@ -227,7 +188,7 @@ const homeNavButton = document.querySelector('.flex-1 a[href="#"]'); // Adjust s
 if (homeNavButton && homeNavButton.querySelector('span').textContent === 'Home') {
     homeNavButton.addEventListener('click', (e) => {
         e.preventDefault();
-        stopTimer(); // Stop timer if quiz is active
+        // stopTimer(); // Removed: stopTimer function is deleted
         showScreen('start'); // Navigate to start screen
     });
 }
