@@ -14,7 +14,7 @@
         <title>Math Practice App</title>
     </head>
     <body style='font-family: Lexend, "Noto Sans", sans-serif;' class="relative flex size-full min-h-screen flex-col bg-[#fcfbf8] justify-between group/design-root overflow-x-hidden">
-        <div class="flex h-full grow flex-col"> {/* This is the common wrapper from the snippets, like layout-container-0, layout-container-1 etc. */}
+        <div class="flex h-full grow flex-col">
             
             <!-- Task Selection Screen -->
             <div id="task-selection-screen" class="px-4 py-5 flex flex-1 justify-center items-center">
@@ -41,7 +41,7 @@
             </div>
 
             <!-- Quiz Screen -->
-            <div id="quiz-screen" class="hidden flex-col h-full"> {/* Added flex-col and h-full to match parent structure if this div is the one that fills the space */}
+            <div id="quiz-screen" class="hidden flex flex-1 flex-col"> {/* Ensure consistency with other screens by using flex-1 */}
                 {/* Header part of quiz screen */}
                 <div class="flex items-center justify-between gap-3 px-4 py-3"> 
                     <div id="close-quiz-btn" class="flex size-8 cursor-pointer items-center justify-center">

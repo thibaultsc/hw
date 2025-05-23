@@ -111,15 +111,13 @@ playAgainBtnNew.addEventListener('click', () => { // Updated variable name & fun
 
 nextQuestionBtnNew.addEventListener('click', () => { // New listener
     console.log('script.js: Next Question button clicked.');
-    // Placeholder: In Part 2, this will call displayNextQuestion()
     displayNextQuestion(); 
     showQuizScreen(); // Transition back to quiz screen
 });
 
 closeQuizBtn.addEventListener('click', () => { // New listener
     console.log('script.js: Close Quiz button clicked.');
-    // Placeholder: In Part 2, this might also reset quiz state if needed
-    endQuiz(currentQuizType); // Or show score screen, or task selection
+    endQuiz(currentQuizType); 
 });
 console.log('script.js: Event listeners set up.');
 
@@ -142,20 +140,18 @@ function generateMultiplicationQuestions() {
         const correctAnswer = num1 * num2;
         let choices = [correctAnswer];
 
-        // Generate 3 unique incorrect answers
         let incorrectCount = 0;
         while (incorrectCount < 3) {
             let wrongAnswer;
-            const type = Math.floor(Math.random() * 3); // 0, 1, or 2 for different strategies
-            if (type === 0) { // (num1 +/- small_random) * num2
+            const type = Math.floor(Math.random() * 3); 
+            if (type === 0) { 
                 wrongAnswer = (num1 + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random()*2)+1)) * num2;
-            } else if (type === 1) { // num1 * (num2 +/- small_random)
+            } else if (type === 1) { 
                 wrongAnswer = num1 * (num2 + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random()*2)+1));
-            } else { // (num1 +/- small_random) * (num2 +/- small_random)
+            } else { 
                 wrongAnswer = (num1 + (Math.random() > 0.5 ? 1 : -1)) * (num2 + (Math.random() > 0.5 ? 1 : -1));
             }
 
-            // Ensure wrongAnswer is plausible (not negative if original numbers are positive) and unique
             if (wrongAnswer !== correctAnswer && !choices.includes(wrongAnswer) && wrongAnswer >= 0) {
                 choices.push(wrongAnswer);
                 incorrectCount++;
@@ -165,7 +161,7 @@ function generateMultiplicationQuestions() {
             question: `${num1} x ${num2} = ?`,
             choices: shuffleArray(choices),
             answer: correctAnswer,
-            type: 'multiplication' // Add type
+            type: 'multiplication'
         });
     }
 }
@@ -180,20 +176,18 @@ function generateAdditionQuestions() {
         const correctAnswer = num1 + num2;
         let choices = [correctAnswer];
 
-        // Generate 3 unique incorrect answers
         let incorrectCount = 0;
         while (incorrectCount < 3) {
             let wrongAnswer;
-            const type = Math.floor(Math.random() * 3); // Strategy for incorrect answers
-            if (type === 0) { // correctAnswer +/- small_random_offset
+            const type = Math.floor(Math.random() * 3); 
+            if (type === 0) { 
                 wrongAnswer = correctAnswer + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 10) + 1);
-            } else if (type === 1) { // num1 + (num2 +/- small_random_offset)
+            } else if (type === 1) { 
                 wrongAnswer = num1 + (num2 + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1));
-            } else { // (num1 +/- small_random_offset) + num2
+            } else { 
                 wrongAnswer = (num1 + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1)) + num2;
             }
 
-            // Ensure wrongAnswer is plausible and unique
             if (wrongAnswer !== correctAnswer && !choices.includes(wrongAnswer) && wrongAnswer > 0) {
                 choices.push(wrongAnswer);
                 incorrectCount++;
@@ -203,7 +197,7 @@ function generateAdditionQuestions() {
             question: `${num1} + ${num2} = ?`,
             choices: shuffleArray(choices),
             answer: correctAnswer,
-            type: 'addition' // Add type
+            type: 'addition'
         });
     }
 }
@@ -215,33 +209,29 @@ function displayNextQuestion() {
     if (currentQuestionIndex < QUESTION_COUNT) {
         const currentQ = questions[currentQuestionIndex];
         console.log('script.js: Displaying question:', currentQ.question);
-        questionTextNew.textContent = currentQ.question; // Updated variable
-        questionProgressNew.textContent = `Question ${currentQuestionIndex + 1}/${QUESTION_COUNT}`; // Update progress
-        answerChoicesNew.innerHTML = ''; // Clear previous choices, updated variable
+        questionTextNew.textContent = currentQ.question; 
+        questionProgressNew.textContent = `Question ${currentQuestionIndex + 1}/${QUESTION_COUNT}`; 
+        answerChoicesNew.innerHTML = ''; 
 
         currentQ.choices.forEach(choice => {
             const button = document.createElement('button');
-            // Applying exact Tailwind classes from the "Quiz Screen" HTML snippet for answer buttons
             button.className = "flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]";
             
             const span = document.createElement('span');
-            span.className = "truncate"; // As per provided HTML structure for answer text
+            span.className = "truncate"; 
             span.textContent = choice;
             button.appendChild(span);
             
-            // Call the new generic selectAnswer function
             button.addEventListener('click', () => selectAnswer(choice, currentQ.answer));
-            answerChoicesNew.appendChild(button); // Updated variable
+            answerChoicesNew.appendChild(button); 
         });
 
-        // feedbackArea is now split, clear them if needed or handle in showFeedback
         feedbackTitleNew.textContent = '';
         feedbackPointsNew.textContent = '';
-        // feedbackArea.style.color = ''; // No direct equivalent, handled by Tailwind classes potentially
         startQuestionTimer();
     } else {
         console.log('script.js: No more questions. Ending quiz.');
-        endQuiz(currentQuizType); // Pass currentQuizType to endQuiz
+        endQuiz(currentQuizType); 
     }
 }
 
@@ -250,9 +240,8 @@ function startQuestionTimer() {
     console.log('script.js: startQuestionTimer() called.');
     clearInterval(timerInterval);
     startTime = new Date().getTime();
-    // Update timer display for new structure
     timerMinutes.textContent = "00"; 
-    timerSeconds.textContent = "00"; // Start with 00, not "0s"
+    timerSeconds.textContent = "00"; 
     
     timerInterval = setInterval(() => {
         const elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
@@ -277,7 +266,7 @@ function selectAnswer(selectedChoice, correctAnswer) {
                 questionScore = 100;
             } else if (timeTaken <= 10) {
                 questionScore = 30 + Math.max(0, Math.floor(70 * ((10 - timeTaken) / 10)));
-            } else { // timeTaken > 10
+            } else { 
                 questionScore = 30;
             }
         } else {
@@ -288,9 +277,8 @@ function selectAnswer(selectedChoice, correctAnswer) {
             if (timeTaken <= 0.5) {
                 questionScore = 100;
             } else if (timeTaken <= 20) {
-                // Formula: 30 + Math.max(0, Math.floor(70 * ((20 - timeTaken) / 20)))
                 questionScore = 30 + Math.max(0, Math.floor(70 * ((20 - timeTaken) / 20)));
-            } else { // timeTaken > 20
+            } else { 
                 questionScore = 30;
             }
         } else {
@@ -299,75 +287,53 @@ function selectAnswer(selectedChoice, correctAnswer) {
     }
 
     currentTotalScore += questionScore;
-    // showFeedback(isCorrect, questionScore, correctAnswer); // Old direct call
-    // Instead of directly calling showFeedback, we now update the feedback screen elements and show it
     updateFeedbackScreenContent(isCorrect, questionScore, correctAnswer);
-    showFeedbackScreen(); // Show the feedback screen
+    showFeedbackScreen(); 
 
     currentQuestionIndex++;
-    // setTimeout(displayNextQuestion, 2000); // Next question is triggered by "Next Question" button now
 }
 
 // New function to update feedback screen content
 function updateFeedbackScreenContent(isCorrect, score, correctAnswer) {
     console.log(`script.js: updateFeedbackScreenContent() called. Correct: ${isCorrect}, Score: ${score}`);
-    const feedbackSVG = feedbackScreen.querySelector('svg'); // Get the SVG element
+    const feedbackSVG = feedbackScreen.querySelector('svg'); 
 
     if (isCorrect) {
         feedbackTitleNew.textContent = 'Correct!';
         feedbackPointsNew.textContent = `You earned ${score} points!`;
-        // Ensure SVG is green (default in HTML is already the correct green checkmark)
         if (feedbackSVG) {
-            feedbackSVG.classList.remove('text-red-500'); // Example if an error state color was added
+            feedbackSVG.classList.remove('text-red-500'); 
             feedbackSVG.classList.add('text-[#31a252]'); 
-            // Potentially update SVG path if different icons are used for correct/incorrect
-            const path = feedbackSVG.querySelector('path[d^="M51.6667 30L35 46.6667L28.3333 40"]'); // Checkmark path
-            if (!path) { // If path is not the checkmark, change it
+            const path = feedbackSVG.querySelector('path[d^="M51.6667 30L35 46.6667L28.3333 40"]'); 
+            if (!path) { 
                 feedbackSVG.innerHTML = `<path d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z" fill="currentColor" fill-opacity="0.12"></path><path d="M51.6667 30L35 46.6667L28.3333 40" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>`;
             }
         }
     } else {
         feedbackTitleNew.textContent = 'Incorrect!';
         feedbackPointsNew.textContent = `The correct answer was ${correctAnswer}. You earned ${score} points.`;
-        // Change SVG to an "incorrect" icon or color if desired.
-        // For this task, we'll assume the "Correct!" screen's SVG is acceptable, or change its color.
-        // If a different icon for "incorrect" is required, the SVG innerHTML would need to be changed.
         if (feedbackSVG) {
             feedbackSVG.classList.remove('text-[#31a252]');
-            feedbackSVG.classList.add('text-red-500'); // Example: Make icon red
-            // To change to a cross icon (example, actual path would be needed):
-            // feedbackSVG.innerHTML = `<path d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z" fill="currentColor" fill-opacity="0.12"></path><path d="M30 30 L50 50 M30 50 L50 30" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>`;
+            feedbackSVG.classList.add('text-red-500'); 
+            // Example: To change to a cross icon (actual path for cross would be needed)
+            // const crossPath = feedbackSVG.querySelector('path[d^="M30 30 L50 50 M30 50 L50 30"]');
+            // if (!crossPath) {
+            //    feedbackSVG.innerHTML = `<path d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z" fill="currentColor" fill-opacity="0.12"></path><path d="M30 30 L50 50 M30 50 L50 30" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>`;
+            // }
         }
     }
 }
-
-
-// Show Feedback (Old function, to be replaced or removed - content moved to updateFeedbackScreenContent)
-// function showFeedback(isCorrect, score, correctAnswer) {
-//     console.log(`script.js: showFeedback() called. Correct: ${isCorrect}, Score: ${score}`);
-// if (isCorrect) {
-// feedbackArea.textContent = `Correct! +${score} points.`;
-// feedbackArea.style.color = 'green';
-//     } else {
-// feedbackArea.textContent = `Incorrect. The correct answer was ${correctAnswer}. +${score} points.`;
-// feedbackArea.style.color = 'red';
-//     }
-// }
 
 // End Quiz
 function endQuiz(quizType) {
     console.log(`script.js: endQuiz() called for ${quizType}. Final score: ${currentTotalScore}`);
     clearInterval(timerInterval);
-    totalScoreNew.textContent = currentTotalScore; // Display the score in the DOM element - Updated variable
+    totalScoreNew.textContent = currentTotalScore; 
     showScoreScreen();
-    // quizType can be used later for different messages or logic
     console.log(`${quizType} quiz ended. Final Score: ${currentTotalScore}`);
 }
 
-
 // Initial State
 console.log('script.js: Setting initial screen state.');
-// HTML now handles initial hidden states with class="hidden".
-// The showTaskSelectionScreen() call ensures the correct screen is visible on load.
-showTaskSelectionScreen(); // This will log "script.js: showTaskSelectionScreen() called."
+showTaskSelectionScreen(); 
 console.log('script.js: Script execution finished. Initial screen should be visible.');
