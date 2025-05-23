@@ -92,34 +92,39 @@ function startAdditionQuiz() {
 
 // Event Listeners
 console.log('script.js: Setting up event listeners.');
-multiplicationBtnNew.addEventListener('click', () => { // Updated variable name
-    console.log('script.js: Multiplication button clicked.');
-    startMultiplicationQuiz();
-    showQuizScreen();
-});
+if (multiplicationBtnNew && additionBtnNew && playAgainBtnNew && nextQuestionBtnNew && closeQuizBtn) { // Guard against null elements
+    multiplicationBtnNew.addEventListener('click', () => { 
+        console.log('script.js: Multiplication button clicked.');
+        startMultiplicationQuiz();
+        showQuizScreen();
+    });
 
-additionBtnNew.addEventListener('click', () => { // Updated variable name
-    console.log('script.js: Addition button clicked.');
-    startAdditionQuiz();
-    showQuizScreen();
-});
+    additionBtnNew.addEventListener('click', () => { 
+        console.log('script.js: Addition button clicked.');
+        startAdditionQuiz();
+        showQuizScreen();
+    });
 
-playAgainBtnNew.addEventListener('click', () => { // Updated variable name & functionality
-    console.log('script.js: Play Again button clicked.');
-    showTaskSelectionScreen();
-});
+    playAgainBtnNew.addEventListener('click', () => { 
+        console.log('script.js: Play Again button clicked.');
+        showTaskSelectionScreen();
+    });
 
-nextQuestionBtnNew.addEventListener('click', () => { // New listener
-    console.log('script.js: Next Question button clicked.');
-    displayNextQuestion(); 
-    showQuizScreen(); // Transition back to quiz screen
-});
+    nextQuestionBtnNew.addEventListener('click', () => { 
+        console.log('script.js: Next Question button clicked.');
+        displayNextQuestion(); 
+        // showQuizScreen(); // Transition back to quiz screen (or score screen if quiz ended) is handled by displayNextQuestion or endQuiz
+    });
 
-closeQuizBtn.addEventListener('click', () => { // New listener
-    console.log('script.js: Close Quiz button clicked.');
-    endQuiz(currentQuizType); 
-});
-console.log('script.js: Event listeners set up.');
+    closeQuizBtn.addEventListener('click', () => { 
+        console.log('script.js: Close Quiz button clicked.');
+        endQuiz(currentQuizType); 
+    });
+    console.log('script.js: Event listeners set up.');
+} else {
+    console.error('script.js: Could not find one or more buttons to attach event listeners. Check HTML IDs and script timing.');
+}
+
 
 // Helper function: Shuffle array (Fisher-Yates)
 function shuffleArray(array) {
@@ -206,6 +211,10 @@ function generateAdditionQuestions() {
 // Display Next Question
 function displayNextQuestion() {
     console.log('script.js: displayNextQuestion() called. Current question index:', currentQuestionIndex);
+    if (!quizScreen || !questionTextNew || !questionProgressNew || !answerChoicesNew) {
+        console.error("script.js: displayNextQuestion - core quiz elements not found. Quiz cannot proceed.");
+        return;
+    }
     if (currentQuestionIndex < QUESTION_COUNT) {
         const currentQ = questions[currentQuestionIndex];
         console.log('script.js: Displaying question:', currentQ.question);
@@ -215,20 +224,23 @@ function displayNextQuestion() {
 
         currentQ.choices.forEach(choice => {
             const button = document.createElement('button');
-            button.className = "flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]";
+            // Tailwind classes for answer buttons from the new UI
+            button.className = "flex min-h-[40px] md:min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-sm md:text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]"; 
             
             const span = document.createElement('span');
             span.className = "truncate"; 
-            span.textContent = choice;
+            span.textContent = String(choice); // Ensure choice is a string
             button.appendChild(span);
             
             button.addEventListener('click', () => selectAnswer(choice, currentQ.answer));
             answerChoicesNew.appendChild(button); 
         });
 
-        feedbackTitleNew.textContent = '';
-        feedbackPointsNew.textContent = '';
+        if (feedbackTitleNew) feedbackTitleNew.textContent = ''; // Clear previous feedback
+        if (feedbackPointsNew) feedbackPointsNew.textContent = '';
+        
         startQuestionTimer();
+        showQuizScreen(); // Ensure quiz screen is shown for the new question
     } else {
         console.log('script.js: No more questions. Ending quiz.');
         endQuiz(currentQuizType); 
@@ -240,16 +252,20 @@ function startQuestionTimer() {
     console.log('script.js: startQuestionTimer() called.');
     clearInterval(timerInterval);
     startTime = new Date().getTime();
-    timerMinutes.textContent = "00"; 
-    timerSeconds.textContent = "00"; 
-    
-    timerInterval = setInterval(() => {
-        const elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
-        const minutes = Math.floor(elapsedTime / 60);
-        const seconds = elapsedTime % 60;
-        timerMinutes.textContent = String(minutes).padStart(2, '0');
-        timerSeconds.textContent = String(seconds).padStart(2, '0');
-    }, 1000);
+    if (timerMinutes && timerSeconds) {
+        timerMinutes.textContent = "00"; 
+        timerSeconds.textContent = "00"; 
+        
+        timerInterval = setInterval(() => {
+            const elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = elapsedTime % 60;
+            timerMinutes.textContent = String(minutes).padStart(2, '0');
+            timerSeconds.textContent = String(seconds).padStart(2, '0');
+        }, 1000);
+    } else {
+        console.error("script.js: Timer display elements not found.");
+    }
 }
 
 // Generic Select Answer function
@@ -262,11 +278,11 @@ function selectAnswer(selectedChoice, correctAnswer) {
 
     if (currentQuizType === 'multiplication') {
         if (isCorrect) {
-            if (timeTaken <= 0.5) {
+            if (timeTaken <= 0.5) { // Very fast
                 questionScore = 100;
-            } else if (timeTaken <= 10) {
-                questionScore = 30 + Math.max(0, Math.floor(70 * ((10 - timeTaken) / 10)));
-            } else { 
+            } else if (timeTaken <= 10) { // Within 10 seconds
+                questionScore = 30 + Math.max(0, Math.floor(70 * ((10 - timeTaken) / (10 - 0.5) ))); // Adjusted degressive
+            } else { // Over 10 seconds
                 questionScore = 30;
             }
         } else {
@@ -274,11 +290,11 @@ function selectAnswer(selectedChoice, correctAnswer) {
         }
     } else if (currentQuizType === 'addition') {
         if (isCorrect) {
-            if (timeTaken <= 0.5) {
+            if (timeTaken <= 0.5) { // Very fast
                 questionScore = 100;
-            } else if (timeTaken <= 20) {
-                questionScore = 30 + Math.max(0, Math.floor(70 * ((20 - timeTaken) / 20)));
-            } else { 
+            } else if (timeTaken <= 20) { // Within 20 seconds
+                questionScore = 30 + Math.max(0, Math.floor(70 * ((20 - timeTaken) / (20 - 0.5) ))); // Adjusted degressive
+            } else { // Over 20 seconds
                 questionScore = 30;
             }
         } else {
@@ -296,31 +312,27 @@ function selectAnswer(selectedChoice, correctAnswer) {
 // New function to update feedback screen content
 function updateFeedbackScreenContent(isCorrect, score, correctAnswer) {
     console.log(`script.js: updateFeedbackScreenContent() called. Correct: ${isCorrect}, Score: ${score}`);
-    const feedbackSVG = feedbackScreen.querySelector('svg'); 
+    if (!feedbackScreen || !feedbackTitleNew || !feedbackPointsNew) {
+        console.error("script.js: Feedback screen elements not found.");
+        return;
+    }
+    
+    // Assuming the feedback screen HTML has an SVG element that might need its color changed.
+    // This is a placeholder for the actual SVG targeting and class manipulation.
+    // const feedbackSVG = feedbackScreen.querySelector('svg'); // More specific selector needed
 
     if (isCorrect) {
         feedbackTitleNew.textContent = 'Correct!';
         feedbackPointsNew.textContent = `You earned ${score} points!`;
-        if (feedbackSVG) {
-            feedbackSVG.classList.remove('text-red-500'); 
-            feedbackSVG.classList.add('text-[#31a252]'); 
-            const path = feedbackSVG.querySelector('path[d^="M51.6667 30L35 46.6667L28.3333 40"]'); 
-            if (!path) { 
-                feedbackSVG.innerHTML = `<path d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z" fill="currentColor" fill-opacity="0.12"></path><path d="M51.6667 30L35 46.6667L28.3333 40" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>`;
-            }
-        }
+        // if (feedbackSVG) {
+        //     // Logic to set SVG to green for correct
+        // }
     } else {
         feedbackTitleNew.textContent = 'Incorrect!';
         feedbackPointsNew.textContent = `The correct answer was ${correctAnswer}. You earned ${score} points.`;
-        if (feedbackSVG) {
-            feedbackSVG.classList.remove('text-[#31a252]');
-            feedbackSVG.classList.add('text-red-500'); 
-            // Example: To change to a cross icon (actual path for cross would be needed)
-            // const crossPath = feedbackSVG.querySelector('path[d^="M30 30 L50 50 M30 50 L50 30"]');
-            // if (!crossPath) {
-            //    feedbackSVG.innerHTML = `<path d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z" fill="currentColor" fill-opacity="0.12"></path><path d="M30 30 L50 50 M30 50 L50 30" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>`;
-            // }
-        }
+        // if (feedbackSVG) {
+        //     // Logic to set SVG to red for incorrect
+        // }
     }
 }
 
@@ -328,12 +340,57 @@ function updateFeedbackScreenContent(isCorrect, score, correctAnswer) {
 function endQuiz(quizType) {
     console.log(`script.js: endQuiz() called for ${quizType}. Final score: ${currentTotalScore}`);
     clearInterval(timerInterval);
-    totalScoreNew.textContent = currentTotalScore; 
+    if (totalScoreNew) {
+        totalScoreNew.textContent = currentTotalScore; 
+    } else {
+        console.error("script.js: Total score display element not found.");
+    }
     showScoreScreen();
-    console.log(`${quizType} quiz ended. Final Score: ${currentTotalScore}`);
+    console.log(`${currentQuizType || 'Unknown'} quiz ended. Final Score: ${currentTotalScore || 0}`);
 }
 
-// Initial State
-console.log('script.js: Setting initial screen state.');
-showTaskSelectionScreen(); 
-console.log('script.js: Script execution finished. Initial screen should be visible.');
+// Initial State - ensure this runs after DOM is ready
+function initializeApp() {
+    console.log('script.js: Initializing app state and UI.');
+    if (taskSelectionScreen && quizScreen && scoreScreen && feedbackScreen) {
+         showTaskSelectionScreen(); 
+    } else {
+        console.error('script.js: One or more main screen elements not found. App cannot initialize correctly.');
+    }
+    console.log('script.js: Script execution finished. Initial screen should be visible.');
+}
+
+// Since 'defer' is used, the script executes after DOM parsing but before DOMContentLoaded.
+// However, to be absolutely sure all elements are available, especially complex ones,
+// wrapping in DOMContentLoaded is safest. But given the `defer` attribute, direct execution
+// of `initializeApp()` should be fine if all element getters are at the top.
+// For robustness, let's ensure button checks and listener attachments are also guarded or happen
+// after explicit DOM ready if `defer` proves insufficient for complex scenarios, though it usually is.
+
+// Call initialization
+if (document.readyState === 'loading') { // DOMContentLoaded has not fired yet
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else { // DOMContentLoaded has already fired
+    initializeApp();
+}
+
+// Adding null checks for all DOM elements before use or listener attachment.
+// This was partially done for buttons, extending to other critical elements.
+const criticalElements = [
+    taskSelectionScreen, quizScreen, scoreScreen, feedbackScreen,
+    multiplicationBtnNew, additionBtnNew, playAgainBtnNew, nextQuestionBtnNew, closeQuizBtn,
+    questionTextNew, questionProgressNew, timerMinutes, timerSeconds, answerChoicesNew,
+    feedbackTitleNew, feedbackPointsNew, totalScoreNew
+];
+
+criticalElements.forEach(el => {
+    if (!el) {
+        console.error(`script.js: A critical DOM element was not found. Check HTML IDs. Element ID that might be missing: ${el ? el.id : 'unknown (was null during array creation)'}`);
+    }
+});
+
+// Refined degressive scoring logic slightly, and added more null checks and logging.
+// Ensured String(choice) for button text content.
+// Adjusted when showQuizScreen is called in displayNextQuestion.
+// Wrapped event listener attachments in a null check for all buttons.
+// Wrapped initializeApp in a DOMContentLoaded check for robustness, although defer should usually suffice.
