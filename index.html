@@ -1,33 +1,176 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Homework Practice App</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="app-container">
-        <div id="task-selection-screen">
-            <h2>Select a Task</h2>
-            <button id="multiplication-btn">Practice Multiplication</button>
-            <button id="addition-btn">Practice Addition</button>
-        </div>
-
-        <div id="quiz-screen" class="hidden">
-            <div id="question-text"></div>
-            <div id="timer-display"></div>
-            <div id="answer-choices">
-                <!-- Buttons will be added here by JavaScript -->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+        <link
+            rel="stylesheet"
+            as="style"
+            onload="this.rel='stylesheet'"
+            href="https://fonts.googleapis.com/css2?display=swap&amp;family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700"
+        />
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <title>Math Practice App</title>
+    </head>
+    <body style='font-family: Lexend, "Noto Sans", sans-serif;' class="relative flex size-full min-h-screen flex-col bg-[#fcfbf8] justify-between group/design-root overflow-x-hidden">
+        <div class="flex h-full grow flex-col"> {/* This is the common wrapper from the snippets, like layout-container-0, layout-container-1 etc. */}
+            
+            <!-- Task Selection Screen -->
+            <div id="task-selection-screen" class="px-4 py-5 flex flex-1 justify-center items-center">
+                <div class="flex w-full flex-col items-center gap-4 @container/container-1">
+                    <div class="flex flex-col items-center gap-2">
+                        <h1 class="text-[#1c170d] text-center font-semibold text-2xl/tight">Choose a Practice Mode</h1>
+                        <p class="text-[#575757] text-center text-base">Select a math skill to practice and improve your proficiency.</p>
+                    </div>
+                    <div class="flex w-full flex-col items-stretch gap-3 @[480px]/container-1:flex-row">
+                        <button
+                            id="multiplication-btn-new"
+                            class="flex min-h-[40px] basis-0 flex-1 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-[#ef8c2c] px-4 text-center font-medium text-white transition-all hover:bg-[#cc7826] disabled:cursor-not-allowed disabled:bg-[#f5c595]"
+                        >
+                            Practice Multiplication
+                        </button>
+                        <button
+                            id="addition-btn-new"
+                            class="flex min-h-[40px] basis-0 flex-1 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-[#ef8c2c] px-4 text-center font-medium text-white transition-all hover:bg-[#cc7826] disabled:cursor-not-allowed disabled:bg-[#f5c595]"
+                        >
+                            Practice Addition
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div id="feedback-area"></div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden flex-col h-full"> {/* Added flex-col and h-full to match parent structure if this div is the one that fills the space */}
+                {/* Header part of quiz screen */}
+                <div class="flex items-center justify-between gap-3 px-4 py-3"> 
+                    <div id="close-quiz-btn" class="flex size-8 cursor-pointer items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#575757]">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div class="flex items-center justify-center gap-1 rounded-lg border border-solid border-[#e0e0e0] bg-white px-2 py-1">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#ef8c2c]">
+                            <path
+                                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            ></path>
+                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <p id="timer-minutes" class="text-[#1c170d] text-lg font-bold leading-[26px]">00</p>
+                        <p class="text-[#1c170d] text-lg font-bold leading-[26px]">:</p>
+                        <p id="timer-seconds" class="text-[#1c170d] text-lg font-bold leading-[26px]">30</p>
+                    </div>
+                    <div class="flex size-8 items-center justify-center"></div> {/* Spacer for centering timer */}
+                </div>
+                {/* Main content of quiz screen */}
+                <div class="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-5 @container/container-0"> 
+                    <div class="flex flex-col items-center gap-2">
+                        <h2 id="question-text-new" class="text-[#1c170d] text-center font-semibold text-2xl/tight">7 x 8 = ?</h2>
+                        <p id="question-progress-new" class="text-[#1c170d] text-base font-medium">Question 1/10</p>
+                    </div>
+                    <div id="answer-choices-new" class="flex w-full flex-1 flex-col items-center justify-center gap-3 @[480px]/container-0:max-w-[480px]">
+                        {/* Answer buttons will be dynamically populated by JS */}
+                        <button class="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]">56</button>
+                        <button class="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]">48</button>
+                        <button class="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]">64</button>
+                        <button class="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-solid border-[#e0e0e0] bg-white px-4 text-center text-base font-medium text-[#1c170d] transition-all hover:bg-[#f7f7f7]">49</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Screen -->
+            <div id="feedback-screen" class="hidden px-4 py-5 flex flex-1 flex-col items-center justify-center gap-4 @container/container-2">
+                <div class="flex flex-col items-center gap-2">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#31a252]">
+                        <path
+                            d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z"
+                            fill="currentColor"
+                            fill-opacity="0.12"
+                        ></path>
+                        <path d="M51.6667 30L35 46.6667L28.3333 40" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <h1 id="feedback-title-new" class="text-[#1c170d] text-center font-semibold text-2xl/tight">Correct!</h1>
+                    <p id="feedback-points-new" class="text-[#575757] text-center text-base">You earned 10 points!</p>
+                </div>
+                <button
+                    id="next-question-btn-new"
+                    class="flex min-h-[40px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-[#ef8c2c] px-4 text-center font-medium text-white transition-all hover:bg-[#cc7826] @[480px]/container-2:max-w-[480px] disabled:cursor-not-allowed disabled:bg-[#f5c595]"
+                >
+                    Next Question
+                </button>
+            </div>
+
+            <!-- Score Screen -->
+            <div id="score-screen" class="hidden px-4 py-5 flex flex-1 flex-col items-center justify-center gap-4 @container/container-3">
+                <div class="flex flex-col items-center gap-2">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#ef8c2c]">
+                        <path
+                            d="M40 73.3333C58.4095 73.3333 73.3333 58.4095 73.3333 40C73.3333 21.5905 58.4095 6.66666 40 6.66666C21.5905 6.66666 6.66666 21.5905 6.66666 40C6.66666 58.4095 21.5905 73.3333 40 73.3333Z"
+                            fill="currentColor"
+                            fill-opacity="0.12"
+                        ></path>
+                        <path d="M53.3333 26.6667L36.6667 46.6667L26.6667 36.6667" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M40 26.6667V20" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M26.6667 40H20" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M53.3333 40H60" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M26.6667 26.6667L20 20" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M53.3333 26.6667L60 20" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <h1 class="text-[#1c170d] text-center font-semibold text-2xl/tight">Congratulations!</h1>
+                    <p class="text-[#575757] text-center text-base">You have completed the practice.</p>
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <p class="text-[#575757] text-center text-sm">Your Score</p>
+                    <h1 id="total-score-new" class="text-[#1c170d] text-center font-semibold text-4xl/tight">534</h1>
+                </div>
+                <button
+                    id="play-again-btn-new"
+                    class="flex min-h-[40px] w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-[#ef8c2c] px-4 text-center font-medium text-white transition-all hover:bg-[#cc7826] @[480px]/container-3:max-w-[480px] disabled:cursor-not-allowed disabled:bg-[#f5c595]"
+                >
+                    Play Again
+                </button>
+            </div>
         </div>
 
-        <div id="score-screen" class="hidden">
-            <h2>Quiz Complete!</h2>
-            <div id="total-score"></div>
-            <button id="home-btn">Return to Main Screen</button>
+        <!-- Persistent Bottom Navigation Bar -->
+        <div class="flex min-h-[56px] items-center justify-center border-t border-solid border-[#e0e0e0] bg-white">
+            <div class="flex w-full max-w-[480px] items-center justify-center">
+                <div class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-1 px-1 py-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#ef8c2c]">
+                        <path
+                            d="M2 10.5V19.5C2 20.0304 2.21071 20.5391 2.58579 20.9142C2.96086 21.2893 3.46957 21.5 4 21.5H8.5V15.5H15.5V21.5H20C20.5304 21.5 21.0391 21.2893 21.4142 20.9142C21.7893 20.5391 22 20.0304 22 19.5V10.5L12 2.5L2 10.5Z"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        ></path>
+                    </svg>
+                    <p class="text-xs font-medium text-[#ef8c2c]">Home</p>
+                </div>
+                <div class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-1 px-1 py-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#9e9e9e]">
+                        <path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <p class="text-xs font-medium text-[#9e9e9e]">Chart</p>
+                </div>
+                <div class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-1 px-1 py-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-[#9e9e9e]">
+                        <path
+                            d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        ></path>
+                        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <p class="text-xs font-medium text-[#9e9e9e]">User</p>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <script src="script.js" defer></script>
-</body>
+    </body>
 </html>
