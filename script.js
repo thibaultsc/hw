@@ -1,3 +1,6 @@
+// At the very start of script.js
+console.log('script.js: Script execution started.');
+
 // Get DOM Element References
 const taskSelectionScreen = document.getElementById('task-selection-screen');
 const quizScreen = document.getElementById('quiz-screen');
@@ -12,6 +15,7 @@ const timerDisplay = document.getElementById('timer-display');
 const answerChoices = document.getElementById('answer-choices');
 const feedbackArea = document.getElementById('feedback-area');
 const totalScore = document.getElementById('total-score');
+console.log('script.js: DOM element references obtained.');
 
 // Global Quiz State Variables
 let currentQuestionIndex;
@@ -24,25 +28,29 @@ let currentQuizType; // To track 'multiplication' or 'addition'
 
 // Screen Management Functions
 function showTaskSelectionScreen() {
+    console.log('script.js: showTaskSelectionScreen() called.');
     taskSelectionScreen.classList.remove('hidden');
     quizScreen.classList.add('hidden');
     scoreScreen.classList.add('hidden');
 }
 
 function showQuizScreen() {
+    console.log('script.js: showQuizScreen() called.');
     taskSelectionScreen.classList.add('hidden');
     quizScreen.classList.remove('hidden');
     scoreScreen.classList.add('hidden');
 }
 
 function showScoreScreen() {
+    console.log('script.js: showScoreScreen() called.');
     taskSelectionScreen.classList.add('hidden');
     quizScreen.classList.add('hidden');
     scoreScreen.classList.remove('hidden');
 }
 
-// Placeholder Functions
+// Quiz Start Functions
 function startMultiplicationQuiz() {
+    console.log('script.js: startMultiplicationQuiz() called.');
     currentQuestionIndex = 0;
     currentTotalScore = 0;
     questions = [];
@@ -53,6 +61,7 @@ function startMultiplicationQuiz() {
 }
 
 function startAdditionQuiz() {
+    console.log('script.js: startAdditionQuiz() called.');
     currentQuestionIndex = 0;
     currentTotalScore = 0;
     questions = [];
@@ -63,19 +72,24 @@ function startAdditionQuiz() {
 }
 
 // Event Listeners
+console.log('script.js: Setting up event listeners.');
 multiplicationBtn.addEventListener('click', () => {
+    console.log('script.js: Multiplication button clicked.');
     startMultiplicationQuiz();
     showQuizScreen();
 });
 
 additionBtn.addEventListener('click', () => {
+    console.log('script.js: Addition button clicked.');
     startAdditionQuiz();
     showQuizScreen();
 });
 
 homeBtn.addEventListener('click', () => {
+    console.log('script.js: Home button clicked.');
     showTaskSelectionScreen();
 });
+console.log('script.js: Event listeners set up.');
 
 // Helper function: Shuffle array (Fisher-Yates)
 function shuffleArray(array) {
@@ -88,6 +102,7 @@ function shuffleArray(array) {
 
 // Generate Multiplication Questions
 function generateMultiplicationQuestions() {
+    console.log('script.js: generateMultiplicationQuestions() called.');
     questions = []; // Clear previous questions
     for (let i = 0; i < QUESTION_COUNT; i++) {
         let num1 = Math.floor(Math.random() * 12) + 1;
@@ -125,6 +140,7 @@ function generateMultiplicationQuestions() {
 
 // Generate Addition Questions
 function generateAdditionQuestions() {
+    console.log('script.js: generateAdditionQuestions() called.');
     questions = []; // Clear previous questions
     for (let i = 0; i < QUESTION_COUNT; i++) {
         let num1 = Math.floor(Math.random() * 100) + 1;
@@ -163,8 +179,10 @@ function generateAdditionQuestions() {
 
 // Display Next Question
 function displayNextQuestion() {
+    console.log('script.js: displayNextQuestion() called. Current question index:', currentQuestionIndex);
     if (currentQuestionIndex < QUESTION_COUNT) {
         const currentQ = questions[currentQuestionIndex];
+        console.log('script.js: Displaying question:', currentQ.question);
         questionText.textContent = currentQ.question;
         answerChoices.innerHTML = ''; // Clear previous choices
 
@@ -180,12 +198,14 @@ function displayNextQuestion() {
         feedbackArea.style.color = ''; // Reset color
         startQuestionTimer();
     } else {
+        console.log('script.js: No more questions. Ending quiz.');
         endQuiz(currentQuizType); // Pass currentQuizType to endQuiz
     }
 }
 
 // Start Question Timer
 function startQuestionTimer() {
+    console.log('script.js: startQuestionTimer() called.');
     clearInterval(timerInterval);
     startTime = new Date().getTime();
     timerDisplay.textContent = "Time: 0s";
@@ -197,6 +217,7 @@ function startQuestionTimer() {
 
 // Generic Select Answer function
 function selectAnswer(selectedChoice, correctAnswer) {
+    console.log(`script.js: selectAnswer() called. Selected: ${selectedChoice}, Correct: ${correctAnswer}, QuizType: ${currentQuizType}`);
     clearInterval(timerInterval);
     const timeTaken = (new Date().getTime() - startTime) / 1000;
     const isCorrect = (selectedChoice === correctAnswer);
@@ -237,6 +258,7 @@ function selectAnswer(selectedChoice, correctAnswer) {
 
 // Show Feedback
 function showFeedback(isCorrect, score, correctAnswer) {
+    console.log(`script.js: showFeedback() called. Correct: ${isCorrect}, Score: ${score}`);
     if (isCorrect) {
         feedbackArea.textContent = `Correct! +${score} points.`;
         feedbackArea.style.color = 'green';
@@ -248,6 +270,7 @@ function showFeedback(isCorrect, score, correctAnswer) {
 
 // End Quiz
 function endQuiz(quizType) {
+    console.log(`script.js: endQuiz() called for ${quizType}. Final score: ${currentTotalScore}`);
     clearInterval(timerInterval);
     totalScore.textContent = currentTotalScore; // Display the score in the DOM element
     showScoreScreen();
@@ -257,6 +280,7 @@ function endQuiz(quizType) {
 
 
 // Initial State
+console.log('script.js: Setting initial screen state.');
 // Ensure quiz and score screens are hidden initially by adding 'hidden' class if not present.
 // The HTML is expected to have style="display:none" which is equivalent for initial state.
 // These lines ensure that if style is removed, class based hiding still works.
@@ -267,4 +291,5 @@ if (!scoreScreen.classList.contains('hidden')) {
     scoreScreen.classList.add('hidden');
 }
 // Call showTaskSelectionScreen on load to ensure the correct screen is displayed.
-showTaskSelectionScreen();
+showTaskSelectionScreen(); // This will log "script.js: showTaskSelectionScreen() called."
+console.log('script.js: Script execution finished. Initial screen should be visible.');
