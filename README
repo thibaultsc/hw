@@ -1,1 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lexend', "Noto Sans", sans-serif;
+        }
+        /* Ensure screens are hidden by default, and only the active one is shown by JS */
+        .screen {
+            display: none;
+        }
+        #startScreen, #quizScreen, #feedbackScreen, #endScreen { /* Will be controlled by JS */
+             width: 100%;
+        }
 
+        /* Helper class to make a screen visible (JS will add/remove this) */
+        .active-screen {
+            display: flex; /* Using flex for the screen containers to align with new design */
+            flex-direction: column;
+            justify-content: space-between; /* For footer */
+            min-height: 100vh; /* Ensure it takes full viewport height */
+        }
+
+        /* Styling for summary list items in end screen */
+        #summary li {
+            background-color: #f3f0e7; /* Light beige background from new design */
+            border: 1px solid #e8e1cf; /* Slightly darker border */
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #1c170d; /* Primary text color */
+        }
+         #summary li.correct {
+            /* Consider adding a small icon or border color if needed, but keep text color consistent */
+         }
+        #summary li.incorrect {
+            /* Consider adding a small icon or border color if needed */
+        }
+        .quiz-button {
+            display: flex;
+            min-width: 84px;
+            max-width: 480px; /* Max width for buttons */
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.5rem; /* rounded-lg */
+            height: 2.5rem; /* h-10 */
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+            background-color: #f3f0e7;
+            color: #1c170d;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 700; /* font-bold */
+            line-height: 1.25rem; /* leading-normal */
+            letter-spacing: 0.015em; /* tracking-[0.015em] */
+            width: 100%; /* w-full */
+        }
+        .quiz-button:hover {
+            background-color: #e8e1cf; /* Slightly darker for hover */
+        }
+    </style>
+</head>
+<body class="bg-[#fcfbf8]">
+
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-[#fcfbf8] justify-between group/design-root overflow-x-hidden" style="font-family: Lexend, 'Noto Sans', sans-serif;">
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen active-screen p-4 flex flex-col items-center justify-center">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-[#1c170d] mb-8">Math Practice</h1>
+                <div class="space-y-4 w-full max-w-xs">
+                    <button id="startMultiplication" class="quiz-button">Multiplication Quiz</button>
+                    <button id="startAddition" class="quiz-button">Addition Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen (Dynamically populated by JS) -->
+        <div id="quizScreen" class="screen">
+            <!-- Header -->
+            <div class="flex items-center bg-[#fcfbf8] p-4 pb-2 justify-between">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="cursor-pointer">
+                    <path d="M18 6L6 18" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 6L18 18" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h2 id="quizTitle" class="text-[#1c170d] text-lg font-bold">Math Quiz</h2> {/* Title can be updated by JS */}
+                <div class="w-6"></div> <!-- Spacer -->
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="flex flex-col gap-3 p-4">
+                <div id="questionCounter" class="text-sm font-medium text-[#1c170d]">Question 1/10</div>
+                <div class="h-2 rounded bg-[#e8e1cf]">
+                    <div id="progressBar" class="h-2 rounded bg-[#f4c653]" style="width: 10%;"></div>
+                </div>
+            </div>
+
+            <!-- Timer Display -->
+            <div id="timer" class="flex gap-4 py-6 px-4"> {/* Keeping ID 'timer' for JS compatibility, though structure changed */}
+                <div class="flex flex-col items-center grow">
+                    <div id="timerMinutes" class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-[#f3f0e7] text-[#1c170d] text-2xl font-bold w-full">00</div>
+                    <div class="text-xs text-[#1c170d] pt-1">Minutes</div>
+                </div>
+                <div class="flex flex-col items-center grow">
+                    <div id="timerSeconds" class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-[#f3f0e7] text-[#1c170d] text-2xl font-bold w-full">20</div>
+                    <div class="text-xs text-[#1c170d] pt-1">Seconds</div>
+                </div>
+            </div>
+
+            <!-- Question Display -->
+            <div class="pb-3 pt-5">
+                <h2 id="question" class="text-[#1c170d] tracking-light text-[28px] font-bold leading-tight px-4 text-center">What is 5 × 8?</h2>
+            </div>
+
+            <!-- Answer Buttons -->
+            <div class="flex justify-center py-3">
+                <div id="answers" class="flex flex-1 gap-3 max-w-[480px] flex-col items-stretch px-4">
+                    {/* Answer buttons will be dynamically added here by JS */}
+                    {/* Example of how a button should look (JS will generate these):
+                    <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#f3f0e7] text-[#1c170d] text-sm font-bold leading-normal tracking-[0.015em] w-full">Answer A</button>
+                    */}
+                </div>
+            </div>
+            
+            <!-- Spacer to push nav to bottom if content is short -->
+             <div class="flex-grow"></div>
+
+
+            <!-- Bottom Navigation Bar -->
+            <div class="flex gap-2 border-t border-[#f3f0e7] bg-[#fcfbf8] px-4 pb-3 pt-2 sticky bottom-0">
+                <a href="#" class="flex flex-1 flex-col items-center justify-center gap-1 rounded-md p-2 text-[#9b844b]"> {/* Active state color */}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="#9b844b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 22V12H15V22" stroke="#9b844b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span class="text-xs font-medium leading-none">Home</span>
+                </a>
+                <a href="#" class="flex flex-1 flex-col items-center justify-center gap-1 rounded-md p-2 text-[#1c170d]">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 20V10M12 20V4M6 20V14" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span class="text-xs font-medium leading-none">Stats</span>
+                </a>
+                <a href="#" class="flex flex-1 flex-col items-center justify-center gap-1 rounded-md p-2 text-[#1c170d]">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#1c170d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span class="text-xs font-medium leading-none">Profile</span>
+                </a>
+            </div>
+            <div class="h-1 bg-[#fcfbf8]"></div> {/* Small div for bottom spacing, was h-5, adjusted for aesthetics with sticky footer */}
+        </div>
+
+
+        <!-- Feedback Screen -->
+        <div id="feedbackScreen" class="screen p-4 flex flex-col items-center justify-center text-center">
+            <div class="w-full max-w-xs space-y-4">
+                <h2 id="feedbackMessage" class="text-2xl font-bold text-[#1c170d]">Correct!</h2>
+                <div id="correctAnswerDisplay" class="text-lg text-[#1c170d]">The correct answer was: 40</div>
+                <div id="pointsDisplay" class="text-lg text-[#1c170d]">Points: 100</div>
+                <button id="nextQuestionButton" class="quiz-button">Next Question</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="endScreen" class="screen p-4 flex flex-col items-center justify-center text-center">
+            <div class="w-full max-w-md space-y-5">
+                <h2 class="text-3xl font-bold text-[#1c170d]">Quiz Complete!</h2>
+                <p class="text-xl text-[#1c170d]">Total Score: <span id="totalScore" class="font-bold">0</span></p>
+                <div class="text-left">
+                    <h3 class="text-xl font-semibold text-[#1c170d] mb-2">Summary:</h3>
+                    <ul id="summary" class="max-h-60 overflow-y-auto">
+                        {/* Summary items will be added here by JS */}
+                    </ul>
+                </div>
+                <button id="restartButton" class="quiz-button">Practice Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="ui.js"></script>
+</body>
+</html>
